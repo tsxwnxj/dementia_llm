@@ -1,0 +1,10 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./serviceAccountKey.json:/app/serviceAccountKey.json:ro
+    environment:
+      - ENV=development
+    restart: unless-stopped

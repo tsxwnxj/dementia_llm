@@ -1,0 +1,21 @@
+# Firebase 서비스 계정 키 (절대 올리면 안됨)
+serviceAccountKey.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+.claude/
+
+# Environment
+.env
+.env.local
+
+# Docker
+*.log
+
+# OS
+.DS_Store
