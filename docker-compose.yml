@@ -1,10 +1,43 @@
 services:
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     volumes:
+      # Firebase 인증 키
       - ./serviceAccountKey.json:/app/serviceAccountKey.json:ro
+      # SQLite DB 및 Whisper 캐시 영속화
+      - dementia_data:/app/data
+      - whisper_cache:/root/.cache/huggingface
     environment:
-      - ENV=development
+      # ── LLM 설정 ────────────────────────────────────────────────────────────
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.0-flash-lite}
+      - LLM_MAX_TOKENS=500
+      - LLM_TEMP=0.7
+      - LLM_TOP_P=0.9
+      # ── STT 설정 ────────────────────────────────────────────────────────────
+      - WHISPER_MODEL=small    # tiny/base/small/medium (한국어: small 이상 권장)
+      - WHISPER_DEVICE=cpu     # cpu / cuda
+      - WHISPER_COMPUTE=int8   # int8 (cpu) / float16 (gpu)
+      # ── TTS 설정 ────────────────────────────────────────────────────────────
+      - TTS_VOICE=ko-KR-SunHiNeural
+      - TTS_RATE=-15%
+      # ── DB ──────────────────────────────────────────────────────────────────
+      - DB_PATH=data/dementia_app.db
+      # ── 기타 ────────────────────────────────────────────────────────────────
+      - ENV=production
     restart: unless-stopped
+    # 메모리 제한 (Whisper small: ~500MB, Gemini는 API 호출)
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+
+volumes:
+  dementia_data:
+  whisper_cache:
